@@ -1,5 +1,5 @@
 
-# Anypoint Template: Workday to Salesforce Worker Aggregation
+# Anypoint Template: Workday to SAP Worker Aggregation
 
 + [License Agreement](#licenseagreement)
 + [Use Case](#usecase)
@@ -26,17 +26,25 @@ Note that using this template is subject to the conditions of this [License Agre
 Please review the terms of the license before downloading and using this template. In short, you are allowed to use the template for free with Mule ESB Enterprise Edition, CloudHub, or as a trial in Anypoint Studio.
 
 # Use Case <a name="usecase"/>
-As a Salesforce admin I want to aggregate users from Workday and Salesforce and compare them to see which users can only be found in one of the two and which users are in both instances. 
+As a SAP admin I want to aggregate users from Workday and employees from SAP and compare them to see which users can only be found in one of the two and which users are in both instances. 
 
 For practical purposes this Template will generate the result in the format of a CSV Report sent by mail.
 
 This Template should serve as a foundation for extracting data from two systems, aggregating data, comparing values of fields for the objects, and generating a report on the differences. 
 
-As implemented, it gets workers from Workday and users from Salesforce, compares by the email address of the workers and users, and generates a CSV file which shows workers in Workday, users in Salesforce. The report is then emailed to a configured group of email addresses.
+As implemented, it gets workers from Workday and employees from SAP, compares by the email address of the workers and users, and generates a CSV file which shows workers in Workday, employees in SAP. The report is then emailed to a configured group of email addresses.
 
 # Considerations <a name="considerations"/>
 
-To make this Anypoint Template run, there are certain preconditions that must be considered. All of them deal with the preparations in both, that must be made in order for all to run smoothly. **Failling to do so could lead to unexpected behavior of the template.**
+To make this Anypoint Template run, there are certain preconditions that must be considered. All of them deal with the preparations in both, that must be made in order for all to run smoothly.
+**Failling to do so could lead to unexpected behavior of the template.**
+Before continue with the use of this Anypoint Template, you may want to check out this [Documentation Page](http://www.mulesoft.org/documentation/display/current/SAP+Connector#SAPConnector-EnablingYourStudioProjectforSAP), that will teach you how to work 
+with SAP and Anypoint Studio.
+## Disclaimer
+This Anypoint template uses a few private Maven dependencies in oder to work. If you intend to run this template with Maven support, please continue reading.
+You will find that there are three dependencies in the pom.xml file that begin with the following group id: 
+	**com.sap.conn.jco** 
+These dependencies are private for Mulesoft and will cause you application not to build from a Maven command line. You need to replace them with "provided" scope and copy the libraries into the build path.
 
 
 ## SAP Considerations <a name="sapconsiderations"/>
@@ -58,7 +66,7 @@ The Workday connector currently does not support autopaging functionality out of
 
 
 # Run it! <a name="runit"/>
-Simple steps to get Workday to Salesforce Worker Aggregation running.
+Simple steps to get Workday to SAP Worker Aggregation running.
 
 
 ## Running on premise <a name="runonopremise"/>
@@ -112,17 +120,18 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 ### Application configuration
 + http.port `9090` 
 
-#### SalesForce Connector configuration for company A
-+ wday.username `bob.dylan@orga`
+#### Workday Connector configuration
++ wday.user `bob.dylan@orga`
 + wday.password `DylanPassword123`
 + wday.endpoint `http://localhost:8080/ccx/service/company_pt1/Human_Resources/v21.1`
 
-#### SalesForce Connector configuration for company B
-+ sfdc.username `joan.baez@orgb`
-+ sfdc.password `JoanBaez456`
-+ sfdc.securityToken `ces56arl7apQs56XTddf34X`
-+ sfdc.url `https://login.salesforce.com/services/Soap/u/26.0`
-
+### SAP Connector configuration
++ sap.jco.ashost `your.sap.address.com`
++ sap.jco.user `SAP_USER`
++ sap.jco.passwd `SAP_PASS`
++ sap.jco.sysnr `14`
++ sap.jco.client `800`
++ sap.jco.lang `EN`
 
 #### SMPT Services configuration
 + smtp.host `smtp.gmail.com`
@@ -133,20 +142,12 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 #### Mail details
 + mail.from `exampleuser@gmail.com`
 + mail.to `woody.guthrie@gmail.com`
-+ mail.subject `SFDC Users Report`
-+ mail.body `Users report comparing users from SFDC Accounts`
-+ attachment.name `OrderedReport.csv`
++ mail.subject `Employee Report`
++ mail.body `Please find attached your Employee Report`
++ attachment.name `WorkersEmployeesReport.csv`
 
 # API Calls <a name="apicalls"/>
-SalesForce imposes limits on the number of API Calls that can be made. Therefore calculating this amount may be an important factor to consider. User Anypoint Template calls to the API can be calculated using the formula:
-
-***1 + UsersToSync + UsersToSync / CommitSize***
-
-Being ***UsersToSync*** the number of Users to be synchronized on each run. 
-
-The division by ***CommitSize*** is because by default, for each Upsert API Call, Users are gathered in groups of a number defined by the Commit Size property. Also consider that this calls are executed repeatedly every polling cycle.	
-
-For instance if 10 records are fetched from origin instance, then 12 api calls will be made (1 + 10 + 1).
+&#160;
 
 
 # Customize It!<a name="customizeit"/>
@@ -175,21 +176,21 @@ This flow has Exception Strategy that basically consists on invoking the *defaul
 
 
 ### Gather Data Flow
-Mainly consisting of two calls (Queries) to Workday and SalesForce and storing each response on the Invocation Variable named *workersFromWorkday* or *usersFromSalesforce* accordingly.
+Mainly consisting of two calls (Queries) to Workday and SAP and storing each response on the Invocation Variable named *workersFromWorkday* or *employeesFromSap* accordingly.
 
 ### Aggregation Flow
-[Java Transformer](http://www.mulesoft.org/documentation/display/current/Java+Transformer+Reference) responsible for aggregating the results from the two SalesForce Org Users.
+[Java Transformer](http://www.mulesoft.org/documentation/display/current/Java+Transformer+Reference) responsible for aggregating the results from the two SAP Org employees.
 Criteria and format applied:
-+ Transformer receives a Mule Message with the two Invocation variables *workersFromWorkday* and *usersFromSalesforce* to result in List of Maps with keys: **Name**, **Email**, **IDInWorkday**, **WorkerNameInWorkday**, **IDInSalesforce** and 
++ Transformer receives a Mule Message with the two Invocation variables *workersFromWorkday* and *employeesFromSap* to result in List of Maps with keys: **Name**, **Email**, **IDInWorkday**, **WorkerNameInWorkday**, **IDInSalesforce** and 
 **UserNameInSalesforce**.
-+ Workers and Users will be matched by mail, that is to say, a record in Workday and Salesforce organisations with same mail is considered the same worker (user).
++ Workers and Users will be matched by mail, that is to say, a record in Workday and SAP organisations with same mail is considered the same worker (user).
 
 ### Format Output Flow
 + [Java Transformer](http://www.mulesoft.org/documentation/display/current/Java+Transformer+Reference) responsible for sorting the list of users in the following order:
 
 1. Workers only in Workday
-2. Users only in Salesforce
-3. Workers and Users in both Workday and Salesforce
+2. Employees only in SAP
+3. Workers and Employees in both Workday and SAP
 
 All records ordered alphabetically by mail within each category.
 If you want to change this order then the *compare* method should be modified.
