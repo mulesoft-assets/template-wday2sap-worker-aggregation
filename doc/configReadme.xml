@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<configuration>
+	<placeholders>
+		<placeholder id="template_name">Workday to Salesforce Worker Aggregation</placeholder>
+	</placeholders>
+	<sections>
+		<section id="use_case">
+As a Salesforce admin I want to aggregate users from Workday and Salesforce and compare them to see which users can only be found in one of the two and which users are in both instances. 
+
+For practical purposes this Template will generate the result in the format of a CSV Report sent by mail.
+
+This Template should serve as a foundation for extracting data from two systems, aggregating data, comparing values of fields for the objects, and generating a report on the differences. 
+
+As implemented, it gets workers from Workday and users from Salesforce, compares by the email address of the workers and users, and generates a CSV file which shows workers in Workday, users in Salesforce. The report is then emailed to a configured group of email addresses.
+		</section>
+		<section id="considerations">
+<![CDATA[
+To make this Anypoint Template run, there are certain preconditions that must be considered. All of them deal with the preparations in both, that must be made in order for all to run smoothly. **Failling to do so could lead to unexpected behavior of the template.**
+]]>
+		</section>
+		<section id="wday_src">
+<![CDATA[
+The Workday connector currently does not support autopaging functionality out of the box so number of processed objects are limited to the connector's single page size.
+]]>
+		</section>
+		<section id="running_on_cloudhub">
+<![CDATA[
+Once your app is all set and started, supposing you choose as domain name `workdayworkersaggregation` to trigger the use case you just need to hit `http://workdayworkersaggregation.cloudhub.io/generatereport` and the report will be sent to the emails configured.
+
+]]>
+		</section>
+		<section id="default_running_on_premise">
+<![CDATA[
+Complete all properties in one of the property files, for example in [mule.prod.properties] (../blob/master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`.
+
+After this, to trigger the use case you just need to hit the local http endpoint with the port you configured in your file. If this is, for instance, `9090` then you should hit: `http://localhost:9090/generatereport` and this will create a CSV report and send it to the mails set.
+]]>
+		</section>
+		<section id="application_configuration">
+		<![CDATA[
++ http.port `9090` 
+
+#### SalesForce Connector configuration for company A
++ wday.username `bob.dylan@orga`
++ wday.password `DylanPassword123`
++ wday.endpoint `http://localhost:8080/ccx/service/company_pt1/Human_Resources/v21.1`
+
+#### SalesForce Connector configuration for company B
++ sfdc.username `joan.baez@orgb`
++ sfdc.password `JoanBaez456`
++ sfdc.securityToken `ces56arl7apQs56XTddf34X`
++ sfdc.url `https://login.salesforce.com/services/Soap/u/26.0`
+
+
+#### SMPT Services configuration
++ smtp.host `smtp.gmail.com`
++ smtp.port `587`
++ smtp.user `exampleuser@gmail.com`
++ smtp.password `ExamplePassword456`
+
+#### Mail details
++ mail.from `exampleuser@gmail.com`
++ mail.to `woody.guthrie@gmail.com`
++ mail.subject `SFDC Users Report`
++ mail.body `Users report comparing users from SFDC Accounts`
++ attachment.name `OrderedReport.csv`
+]]>
+		</section>
+		<section id="api_calls">
+		<![CDATA[
+SalesForce imposes limits on the number of API Calls that can be made. Therefore calculating this amount may be an important factor to consider. User Anypoint Template calls to the API can be calculated using the formula:
+
+***1 + UsersToSync + UsersToSync / CommitSize***
+
+Being ***UsersToSync*** the number of Users to be synchronized on each run. 
+
+The division by ***CommitSize*** is because by default, for each Upsert API Call, Users are gathered in groups of a number defined by the Commit Size property. Also consider that this calls are executed repeatedly every polling cycle.	
+
+For instance if 10 records are fetched from origin instance, then 12 api calls will be made (1 + 10 + 1).
+]]>
+		</section>
+		<section id="default_endpoints_xml">
+		<![CDATA[
+This is the file where you will found the inbound and outbound sides of your integration app.
+This Template has an [HTTP Inbound Endpoint](http://www.mulesoft.org/documentation/display/current/HTTP+Endpoint+Reference) as the way to trigger the use case and an [SMTP Transport](http://www.mulesoft.org/documentation/display/current/SMTP+Transport+Reference) as the outbound way to send the report.
+
+$H$H# Trigger Flow
+**HTTP Inbound Endpoint** - Start Report Generation
++ `${http.port}` is set as a property to be defined either on a property file or in CloudHub environment variables.
++ The path configured by default is `generatereport` and you are free to change for the one you prefer.
++ The host name for all endpoints in your CloudHub configuration should be defined as `localhost`. CloudHub will then route requests from your application domain URL to the endpoint.
+
+$H$H# Outbound Flow
+**SMTP Outbound Endpoint** - Send Mail
++ Both SMTP Server configuration and the actual mail to be sent are defined in this endpoint.
++ This flow is going to be invoked from the flow that does all the functional work: *mainFlow*, the same that is invoked from the Inbound Flow upon triggering of the HTTP Endpoint.
+]]>
+		</section>
+		<section id="default_business_logic_xml">
+		<![CDATA[
+Functional aspect of the Template is implemented on this XML, directed by one flow responsible of conducting the aggregation of data, comparing records and finally formating the output, in this case being a report.
+The *mainFlow* organises the job in three different steps and finally invokes the *outboundFlow* that will deliver the report to the corresponding outbound endpoint.
+This flow has Exception Strategy that basically consists on invoking the *defaultChoiseExceptionStrategy* defined in *errorHandling.xml* file.
+
+
+$H$H# Gather Data Flow
+Mainly consisting of two calls (Queries) to Workday and SalesForce and storing each response on the Invocation Variable named *workersFromWorkday* or *usersFromSalesforce* accordingly.
+
+$H$H# Aggregation Flow
+[Java Transformer](http://www.mulesoft.org/documentation/display/current/Java+Transformer+Reference) responsible for aggregating the results from the two SalesForce Org Users.
+Criteria and format applied:
++ Transformer receives a Mule Message with the two Invocation variables *workersFromWorkday* and *usersFromSalesforce* to result in List of Maps with keys: **Name**, **Email**, **IDInWorkday**, **WorkerNameInWorkday**, **IDInSalesforce** and 
+**UserNameInSalesforce**.
++ Workers and Users will be matched by mail, that is to say, a record in Workday and Salesforce organisations with same mail is considered the same worker (user).
+
+$H$H# Format Output Flow
++ [Java Transformer](http://www.mulesoft.org/documentation/display/current/Java+Transformer+Reference) responsible for sorting the list of users in the following order:
+
+1. Workers only in Workday
+2. Users only in Salesforce
+3. Workers and Users in both Workday and Salesforce
+
+All records ordered alphabetically by mail within each category.
+If you want to change this order then the *compare* method should be modified.
+
++ CSV Report [DataMapper](http://www.mulesoft.org/documentation/display/current/Datamapper+User+Guide+and+Reference) transforming the List of Maps in CSV with headers **Name**, **Email**, **IDInWorkday**, **WorkerNameInWorkday**, **IDInSalesforce** and **UserNameInSalesforce**.
++ An [Object to string transformer](http://www.mulesoft.org/documentation/display/current/Transformers) is used to set the payload as an String. 
+]]>
+		</section>
+	</sections>
+</configuration>

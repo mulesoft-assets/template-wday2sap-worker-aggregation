@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:wd-hr="http://www.mulesoft.org/schema/mule/wd-hr" xmlns:sap="http://www.mulesoft.org/schema/mule/sap" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:spring="http://www.springframework.org/schema/beans"
+      version="EE-3.5.2"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd-hr/current/mule-wd-hr.xsd
+http://www.mulesoft.org/schema/mule/sap http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd
+http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schema/mule/ee/data-mapper/current/mule-data-mapper.xsd">
+
+    <data-mapper:config name="csvreport_grf" transformationGraphPath="csvreport.grf" doc:name="DataMapper"/>
+    <data-mapper:config name="workdayWorkers_to_maps" transformationGraphPath="workdayWorkers_to_maps.grf" doc:name="workdayWorkers_to_maps"/>
+    <data-mapper:config name="XML_To_Map" transformationGraphPath="xml_to_map.grf" doc:name="XML_To_Map"/>
+    
+    <flow name="mainFlow" doc:name="mainFlow" doc:description="This flow is the entry point to the Template business logic.
+
+This flow should control the direction of the application, and it should be called by the different endpoints that your Template exposes to trigger it.">
+        <flow-ref name="gatherDataFlow" doc:name="call gatherDataFlow"/>
+        <flow-ref name="aggregationFlow" doc:name="call aggregationFlow"/>
+        <flow-ref name="formatOutputFlow" doc:name="call formatOutputFlow"/>
+        <flow-ref name="outboundFlow" doc:name="call outboundFlow"/>
+        <exception-strategy ref="defaultChoiceExceptionStrategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+  
+    <sub-flow name="gatherDataFlow" doc:name="gatherDataFlow">
+        <enricher source="#[payload]" target="#[flowVars['workersFromWorkday']]" doc:name="Store result in FlowVar 'workersFromWorkday'">
+            <processor-chain doc:name="Processor Chain">
+                <wd-hr:get-workers config-ref="WorkdayHumanResource" workersRequest-ref="#[new com.workday.hr.GetWorkersRequestType()]" doc:name="get Workers from Workday"/>
+                <data-mapper:transform config-ref="workdayWorkers_to_maps" doc:name="transform Workday's workers to map of values"/>
+            </processor-chain>
+        </enricher>
+        <enricher source="#[payload]" target="#[flowVars['employeesFromSap']]" doc:name="Store result in FlowVar 'employeesFromSap'">
+            <processor-chain doc:name="Processor Chain">
+                <sap:outbound-endpoint connector-ref="SAP" type="function" functionName="BAPI_EMPLOYEE_GETDATA" xmlVersion="2" outputXml="true" responseTimeout="10000" doc:name="SAP" evaluateFunctionResponse="true" exchange-pattern="request-response">
+                    <sap:definition><![CDATA[<jco>
+	<import>
+		<field name="LASTNAME_M">*ADAMS*</field>
+	</import>
+</jco>
+]]></sap:definition>
+                </sap:outbound-endpoint>
+                <data-mapper:transform config-ref="XML_To_Map" doc:name="transform SAP's employees to map of values"/>
+            </processor-chain>
+        </enricher>
+    </sub-flow>
+
+    <sub-flow name="aggregationFlow" doc:name="aggregationFlow">
+        <custom-transformer class="org.mule.templates.transformers.WorkersAndEmployeesMerge" doc:name="Custom component to build merged employees list"/>
+    </sub-flow>
+    
+    <sub-flow name="formatOutputFlow" doc:name="formatOutputFlow">
+        <custom-transformer class="org.mule.templates.transformers.SortWorkersAndEmployeesList" doc:name="Custom component to sort employees list"/>
+        <data-mapper:transform config-ref="csvreport_grf" doc:name="transform Collection of Maps to CSV Format"/>
+        <object-to-string-transformer doc:name="CSV Output Object to String"/>
+    </sub-flow>
+</mule>
