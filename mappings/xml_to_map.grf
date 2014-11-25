@@ -42,8 +42,9 @@
 <Field __artificialType="_id" __systemManaged="true" name="__id" type="string"/>
 <Field __index="2" __sourcePath="{}/Employee/Email" containerType="SINGLE" label="Email" name="Email" type="string"/>
 <Field __index="0" __sourcePath="{}/Employee/Id" containerType="SINGLE" label="Id" name="Id" type="string"/>
-<Field __index="1" __sourcePath="{}/Employee/Name" containerType="SINGLE" label="Name" name="Name" type="string"/>
 <Field __index="3" __sourcePath="{}/Employee/Username" containerType="SINGLE" label="Username" name="Username" type="string"/>
+<Field __sourcePath="{}/Employee/FirstName" containerType="SINGLE" label="FirstName" name="FirstName" type="string"/>
+<Field __sourcePath="{}/Employee/LastName" containerType="SINGLE" label="LastName" name="LastName" type="string"/>
 </Record>
 </Metadata>
 <Metadata __index="32" __referenceCounter="0" __sourcePath="{}/BAPI_EMPLOYEE_GETDATA/tables/ARCHIVELINK/row" _dataStructure="SINGLE_DIMENSIONAL_COLLECTION" _id="__id" _metadataParentId="3dc743a9-c5ac-4962-96dc-c6bf7e0e1b3a" _parent_id="__parent_id" _type="Input" id="e19c8b78-b5c5-4c76-b53c-fb4e18d7062e">
@@ -288,8 +289,9 @@ output.__id = input.__id;
 //START -> DO NOT REMOVE
 output.__id = input.__id;
 //END -> DO NOT REMOVE
-output.Name = input.LASTNAME_M;
-output.Id = input.PERNO;]]></attr>
+output.Id = input.PERNO;
+output.FirstName = input.FSTNAME_M;
+output.LastName = input.LASTNAME_M;]]></attr>
 </Node>
 <Node enabled="enabled" guiName="Foreach 'row' -&gt; 'Employee'" guiX="460" guiY="220" id="FOREACH_ROW_EMPLOYEE1" transformClass="com.mulesoft.datamapper.transform.MelRecordTransform" type="REFORMAT">
 <attr name="melScript"><![CDATA[//MEL
@@ -297,28 +299,32 @@ output.Id = input.PERNO;]]></attr>
 output.__id = input.__id;
 //END -> DO NOT REMOVE
 output.Email = input.USRID_LONG;
-output.Username = input.USERID;]]></attr>
+output.Username = input.USERID;
+output.Id = input.PERNO;]]></attr>
 </Node>
 <Node cacheInMemory="true" enabled="enabled" fileURL="dict:outputPayload" guiName="Map&lt;k,v&gt; WRITER" guiX="900" guiY="20" id="MAP_WRITER0" type="MAP_WRITER">
 <attr name="mapping"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <clover:collection clover:name="Employee" xmlns:clover="http://www.cloveretl.com/ns/xmlmapping">
   <item clover:inPort="0">
     <Id>$0.Id</Id>
-    <Name>$0.Name</Name>
     <Email>$0.Email</Email>
     <Username>$0.Username</Username>
+    <FirstName>$0.FirstName</FirstName>
+    <LastName>$0.LastName</LastName>
   </item>
   <item clover:inPort="1">
     <Id>$1.Id</Id>
-    <Name>$1.Name</Name>
     <Email>$1.Email</Email>
     <Username>$1.Username</Username>
+    <FirstName>$1.FirstName</FirstName>
+    <LastName>$1.LastName</LastName>
   </item>
   <item clover:inPort="2">
     <Id>$2.Id</Id>
-    <Name>$2.Name</Name>
     <Email>$2.Email</Email>
     <Username>$2.Username</Username>
+    <FirstName>$2.FirstName</FirstName>
+    <LastName>$2.LastName</LastName>
   </item>
 </clover:collection>]]></attr>
 <attr name="_data_format"><![CDATA[MAP]]></attr>

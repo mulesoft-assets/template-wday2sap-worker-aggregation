@@ -38,22 +38,22 @@ public class SortWorkersAndEmployeesList extends AbstractMessageTransformer {
         private String buildKey(Map<String, String> user) {
             StringBuilder key = new StringBuilder();
 
-            if (StringUtils.isNotBlank(user.get("IDInWorkday")) && StringUtils.isNotBlank(user.get("IDInSalesforce"))) {
+            if (StringUtils.isNotBlank(user.get("IDInWorkday")) && StringUtils.isNotBlank(user.get("IDInSap"))) {
                 key.append("~~");
                 key.append(user.get("IDInWorkday"));
-                key.append(user.get("IDInSalesforce"));
+                key.append(user.get("IDInSap"));
                 key.append(user.get("Email"));
             }
 
-            if (StringUtils.isNotBlank(user.get("IDInWorkday")) && StringUtils.isBlank(user.get("IDInSalesforce"))) {
+            if (StringUtils.isNotBlank(user.get("IDInWorkday")) && StringUtils.isBlank(user.get("IDInSap"))) {
                 key.append(user.get("IDInWorkday"));
                 key.append("~");
                 key.append(user.get("Email"));
             }
 
-            if (StringUtils.isBlank(user.get("IDInWorkday")) && StringUtils.isNotBlank(user.get("IDInSalesforce"))) {
+            if (StringUtils.isBlank(user.get("IDInWorkday")) && StringUtils.isNotBlank(user.get("IDInSap"))) {
                 key.append("~");
-                key.append(user.get("IDInSalesforce"));
+                key.append(user.get("IDInSap"));
                 key.append(user.get("Email"));
             }
 

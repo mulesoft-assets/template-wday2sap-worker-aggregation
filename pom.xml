@@ -68,14 +68,14 @@
 			<scope>system</scope>
 			<systemPath>/Users/medvegy/Downloads/maclibs/sapjco3.jar</systemPath>
 		</dependency>
-		<dependency>
-			<groupId>com.sap.conn.jco</groupId>
-			<artifactId>sapjco-native</artifactId>
-			<version>${sap.jco.version}</version>
-			<classifier>${sap.build.type}</classifier>
-			<scope>system</scope>
-			<systemPath>/Users/medvegy/Downloads/maclibs/libsapjco3.jnilib</systemPath>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>com.sap.conn.jco</groupId> -->
+<!-- 			<artifactId>sapjco-native</artifactId> -->
+<!-- 			<version>${sap.jco.version}</version> -->
+<!-- 			<classifier>${sap.build.type}</classifier> -->
+<!-- 			<scope>system</scope> -->
+<!-- 			<systemPath>/Users/medvegy/Downloads/maclibs/libsapjco3.jnilib</systemPath> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>com.sap.conn.idoc</groupId>
 			<artifactId>sapidoc</artifactId>

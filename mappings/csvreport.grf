@@ -6,8 +6,8 @@
 <Field containerType="SINGLE" label="Mail" name="Mail" size="10" type="string"/>
 <Field containerType="SINGLE" label="Id in Workday" name="Id_in_org_A" size="10" type="string"/>
 <Field containerType="SINGLE" label="Username in Workday" name="Username_in_org_A" size="10" type="string"/>
-<Field containerType="SINGLE" label="Id in Salesforce" name="Id_in_org_B" size="10" type="string"/>
-<Field containerType="SINGLE" eofAsDelimiter="true" label="Username in Salesforce" name="Username_in_org_B" size="10" type="string"/>
+<Field containerType="SINGLE" label="Id in SAP" name="Id_in_org_B" size="10" type="string"/>
+<Field containerType="SINGLE" eofAsDelimiter="true" label="Username in SAP" name="Username_in_org_B" size="10" type="string"/>
 <Field __artificialType="_id" name="__id" type="long"/>
 </Record>
 </Metadata>
@@ -15,11 +15,11 @@
 <Record fieldDelimiter="|" name="UserFromSFDC" recordDelimiter="\n\\|\r\n\\|\r" type="delimited">
 <Field __artificialType="_id" __systemManaged="true" name="__id" type="string"/>
 <Field __sourcePath="{}/UserFromSFDC/IDInWorkday" containerType="SINGLE" label="IDInWorkday" name="IDInA" type="string"/>
-<Field __sourcePath="{}/UserFromSFDC/IDInSalesforce" containerType="SINGLE" label="IDInSalesforce" name="IDInB" type="string"/>
+<Field __sourcePath="{}/UserFromSFDC/IDInSap" containerType="SINGLE" label="IDInSap" name="IDInB" type="string"/>
 <Field __sourcePath="{}/UserFromSFDC/Email" containerType="SINGLE" label="Email" name="Mail" type="string"/>
 <Field __sourcePath="{}/UserFromSFDC/Name" containerType="SINGLE" label="Name" name="Name" type="string"/>
 <Field __sourcePath="{}/UserFromSFDC/WorkerNameInWorkday" containerType="SINGLE" label="WorkerNameInWorkday" name="UserNameInA" type="string"/>
-<Field __sourcePath="{}/UserFromSFDC/UserNameInSalesforce" containerType="SINGLE" label="UserNameInSalesforce" name="UserNameInB" type="string"/>
+<Field __sourcePath="{}/UserFromSFDC/UserNameInSap" containerType="SINGLE" label="UserNameInSap" name="UserNameInB" type="string"/>
 </Record>
 </Metadata>
 <Dictionary>
@@ -32,11 +32,11 @@
 <attr name="mapping"><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Context outPort="0" sequenceField="__id" xpath=".">
   <Mapping cloverField="IDInA" trim="true" xpath="IDInWorkday"/>
-  <Mapping cloverField="IDInB" trim="true" xpath="IDInSalesforce"/>
+  <Mapping cloverField="IDInB" trim="true" xpath="IDInSap"/>
   <Mapping cloverField="Mail" trim="true" xpath="Email"/>
   <Mapping cloverField="Name" trim="true" xpath="Name"/>
   <Mapping cloverField="UserNameInA" trim="true" xpath="WorkerNameInWorkday"/>
-  <Mapping cloverField="UserNameInB" trim="true" xpath="UserNameInSalesforce"/>
+  <Mapping cloverField="UserNameInB" trim="true" xpath="UserNameInSap"/>
 </Context>
 ]]></attr>
 <attr name="_data_format"><![CDATA[MAP]]></attr>
