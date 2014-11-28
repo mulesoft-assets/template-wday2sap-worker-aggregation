@@ -50,7 +50,7 @@ public class WorkersAndEmployeesMerge extends AbstractMessageTransformer {
      * @param employeesFromSap users from SAP
      * @return a list with the merged content of the to input lists
      */
-    private List<Map<String, String>> mergeList(List<Map<String, String>> workersFromWorkday, List<Map<String, String>> employeesFromSap) {
+    List<Map<String, String>> mergeList(List<Map<String, String>> workersFromWorkday, List<Map<String, String>> employeesFromSap) {
 
         List<Map<String, String>> mergedUsersList = new ArrayList<Map<String, String>>();
 

@@ -83,6 +83,12 @@
 			<scope>system</scope>
 			<systemPath>/Users/medvegy/Downloads/maclibs/sapidoc3.jar</systemPath>
 		</dependency>
+    <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-spring-config</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 	<repositories>
