@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:wd-hr="http://www.mulesoft.org/schema/mule/wd-hr" xmlns:sap="http://www.mulesoft.org/schema/mule/sap" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+<mule xmlns:wd-absence="http://www.mulesoft.org/schema/mule/wd-absence" xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:wd-hr="http://www.mulesoft.org/schema/mule/wd-hr" xmlns:sap="http://www.mulesoft.org/schema/mule/sap" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
       xmlns:spring="http://www.springframework.org/schema/beans"
@@ -35,12 +35,13 @@ This flow should control the direction of the application, and it should be call
     <sub-flow name="sapRetrievalMapperFlow" doc:name="sapRetrievalMapperFlow">
         <processor-chain doc:name="Processor Chain">
             <sap:outbound-endpoint exchange-pattern="request-response" connector-ref="SAP" type="function" functionName="BAPI_EMPLOYEE_GETDATA" xmlVersion="2" outputXml="true" evaluateFunctionResponse="true" responseTimeout="10000" doc:name="SAP">
-                <sap:definition><![CDATA[<jco>
+                <sap:definition><![CDATA[<BAPI_EMPLOYEE_GETDATA>
 	<import>
-		<field name="LASTNAME_M">*ADAMS*</field>
+		<LASTNAME_M>*ADAMS*</LASTNAME_M>
 	</import>
-</jco>
+</BAPI_EMPLOYEE_GETDATA>
 ]]></sap:definition>
+
             </sap:outbound-endpoint>
             <data-mapper:transform config-ref="XML_To_Map" doc:name="transform SAP's employees to map of values"/>
         </processor-chain>

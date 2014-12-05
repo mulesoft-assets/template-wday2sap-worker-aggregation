@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.mule.templates</groupId>
 		<artifactId>templates-tooling-parent-pom</artifactId>
-		<version>1.0.7</version>
+		<version>1.0.8</version>
 	</parent>
 
 	<artifactId>template-wday2sap-worker-aggregation</artifactId>
@@ -16,8 +16,9 @@
 
 	<properties>
 		<sap.jco.version>3.0.9</sap.jco.version>
-		<sap.idoc.version>3.0.6</sap.idoc.version>
+		<sap.idoc.version>3.0.11</sap.idoc.version>
 		<sap.build.type>mac64</sap.build.type>
+		<wday.version>4.0.1</wday.version>
 	</properties>
 
 	<build>
@@ -52,7 +53,7 @@
     <dependency>
             <groupId>org.mule.modules</groupId>
             <artifactId>mule-module-workday</artifactId>
-            <version>4.0.1</version>
+            <version>${wday.version}</version>
         </dependency>
     <dependency>
             <groupId>org.mule.transports</groupId>
@@ -65,23 +66,20 @@
 			<groupId>com.sap.conn.jco</groupId>
 			<artifactId>sapjco</artifactId>
 			<version>${sap.jco.version}</version>
-			<scope>system</scope>
-			<systemPath>/Users/medvegy/Downloads/maclibs/sapjco3.jar</systemPath>
+			<scope>test</scope>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.sap.conn.jco</groupId> -->
-<!-- 			<artifactId>sapjco-native</artifactId> -->
-<!-- 			<version>${sap.jco.version}</version> -->
-<!-- 			<classifier>${sap.build.type}</classifier> -->
-<!-- 			<scope>system</scope> -->
-<!-- 			<systemPath>/Users/medvegy/Downloads/maclibs/libsapjco3.jnilib</systemPath> -->
-<!-- 		</dependency> -->
+		<dependency>
+			<groupId>com.sap.conn.jco</groupId>
+			<artifactId>sapjco-native</artifactId>
+			<version>${sap.jco.version}</version>
+			<classifier>${sap.build.type}</classifier>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.sap.conn.idoc</groupId>
 			<artifactId>sapidoc</artifactId>
 			<version>${sap.idoc.version}</version>
-			<scope>system</scope>
-			<systemPath>/Users/medvegy/Downloads/maclibs/sapidoc3.jar</systemPath>
+			<scope>test</scope>
 		</dependency>
     <dependency>
             <groupId>org.mule.modules</groupId>
