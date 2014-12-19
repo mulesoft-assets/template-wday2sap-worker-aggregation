@@ -120,15 +120,15 @@ public class WorkersAndEmployeesMerge extends AbstractMessageTransformer {
 		}
         
 		// Add the new users from Salesforce and update the exiting ones
-        for (Map<String, String> userFromSalesforce : employeesFromSap) {
-            Map<String, String> userFromWorkday = findUserInList(userFromSalesforce.get("Email"), mergedUsersList);
+        for (Map<String, String> userFromSAP : employeesFromSap) {
+            Map<String, String> userFromWorkday = findUserInList(userFromSAP.get("Email"), mergedUsersList);
             if (userFromWorkday != null) {
-                userFromWorkday.put("IDInSap", userFromSalesforce.get("Id"));
-                userFromWorkday.put("UserNameInSap", userFromSalesforce.get("Username"));
+                userFromWorkday.put("IDInSap", userFromSAP.get("Id"));
+                userFromWorkday.put("UserNameInSap", userFromSAP.get("Username"));
             } else {
-                Map<String, String> mergedUser = createMergedUser(userFromSalesforce);
-                mergedUser.put("IDInSap", userFromSalesforce.get("Id"));
-                mergedUser.put("UserNameInSap", userFromSalesforce.get("Username"));
+                Map<String, String> mergedUser = createMergedUser(userFromSAP);
+                mergedUser.put("IDInSap", userFromSAP.get("Id"));
+                mergedUser.put("UserNameInSap", userFromSAP.get("Username"));
                 mergedUsersList.add(mergedUser);
             }
 
