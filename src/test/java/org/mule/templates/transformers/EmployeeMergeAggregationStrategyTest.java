@@ -26,7 +26,7 @@ import com.google.common.collect.Lists;
 
 @SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
-public class UsersMergeAggregationStrategyTest extends AbstractTemplateTestCase {
+public class EmployeeMergeAggregationStrategyTest extends AbstractTemplateTestCase {
 	
 	@Mock
 	private MuleContext muleContext;
@@ -34,8 +34,8 @@ public class UsersMergeAggregationStrategyTest extends AbstractTemplateTestCase 
 	
 	@Test
 	public void testAggregate() throws Exception {
-		List<Map<String, String>> usersA = UsersMergeTest.createUserLists("A", 0, 1);
-		List<Map<String, String>> usersB = UsersMergeTest.createUserLists("B", 1, 2);
+		List<Map<String, String>> usersA = WorkersAndEmployeesMergeTest.createUserLists("A", 0, 1);
+		List<Map<String, String>> usersB = WorkersAndEmployeesMergeTest.createUserLists("B", 1, 2);
 		
 		MuleEvent testEventA = getTestEvent("");
 		MuleEvent testEventB = getTestEvent("");
@@ -52,7 +52,7 @@ public class UsersMergeAggregationStrategyTest extends AbstractTemplateTestCase 
 		EmployeeMergeAggregationStrategy userMerge = new EmployeeMergeAggregationStrategy();
 		List<Map<String, String>> mergedList = (List<Map<String, String>>) userMerge.aggregate(aggregationContext).getMessage().getPayload();
 		
-		Assert.assertEquals("The merged list obtained is not as expected", UsersMergeTest.createExpectedList(), mergedList);
+		Assert.assertEquals("The merged list obtained is not as expected", WorkersAndEmployeesMergeTest.createExpectedList(), mergedList);
 
 	}
 	

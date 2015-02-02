@@ -21,7 +21,7 @@ import org.mule.api.MuleContext;
 import org.mule.api.transformer.TransformerException;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UsersMergeTest {
+public class WorkersAndEmployeesMergeTest {
 
 	@Mock
 	private MuleContext muleContext;

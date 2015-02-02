@@ -12,10 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.mule.api.MuleMessage;
-import org.mule.api.transformer.TransformerException;
-import org.mule.transformer.AbstractMessageTransformer;
-
 import com.google.common.collect.Lists;
 
 /**
@@ -24,24 +20,7 @@ import com.google.common.collect.Lists;
  *
  * @author aurel.medvegy
  */
-public class WorkersAndEmployeesMerge extends AbstractMessageTransformer {
-
-    public static final String WORKDAY_WORKERS = "workersFromWorkday";
-    public static final String SAP_EMPLOYEES = "employeesFromSap";
-
-    @Override
-    public Object transformMessage(MuleMessage message, String outputEncoding) throws TransformerException {
-
-        return mergeList(getWorkersList(message, WORKDAY_WORKERS), getUsersList(message, SAP_EMPLOYEES));
-    }
-
-    private List<Map<String, String>> getUsersList(MuleMessage message, String propertyName) {
-        return message.getInvocationProperty(propertyName);
-    }
-
-    private List<Map<String, String>> getWorkersList(MuleMessage message, String propertyName) {
-        return message.getInvocationProperty(propertyName);
-    }
+public class WorkersAndEmployeesMerge {
 
     /**
      * The method will merge the users from the two lists creating a new one.
@@ -119,7 +98,7 @@ public class WorkersAndEmployeesMerge extends AbstractMessageTransformer {
 			}
 		}
         
-		// Add the new users from Salesforce and update the exiting ones
+		// Add the new users from SAP and update the exiting ones
         for (Map<String, String> userFromSAP : employeesFromSap) {
             Map<String, String> userFromWorkday = findUserInList(userFromSAP.get("Email"), mergedUsersList);
             if (userFromWorkday != null) {
@@ -151,7 +130,7 @@ public class WorkersAndEmployeesMerge extends AbstractMessageTransformer {
     private Map<String, String> findUserInList(String email, List<Map<String, String>> userList) {
 
         for (Map<String, String> user : userList) {
-            if (user.get("Email").equals(email)) {
+            if (user.get("Email").equalsIgnoreCase(email)) {
                 return user;
             }
         }

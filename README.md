@@ -26,13 +26,13 @@ Note that using this template is subject to the conditions of this [License Agre
 Please review the terms of the license before downloading and using this template. In short, you are allowed to use the template for free with Mule ESB Enterprise Edition, CloudHub, or as a trial in Anypoint Studio.
 
 # Use Case <a name="usecase"/>
-As a SAP admin I want to aggregate users from Workday and employees from SAP and compare them to see which users can only be found in one of the two and which users are in both instances. 
+As a SAP admin I want to aggregate workers from Workday and employees from SAP and compare them to see which workers can only be found in one of the two and which workers are in both instances. 
 
 For practical purposes this Template will generate the result in the format of a CSV Report sent by mail.
 
 This Template should serve as a foundation for extracting data from two systems, aggregating data, comparing values of fields for the objects, and generating a report on the differences. 
 
-As implemented, it gets workers from Workday and employees from SAP, compares by the email address of the workers and users, and generates a CSV file which shows workers in Workday, employees in SAP. The report is then emailed to a configured group of email addresses.
+As implemented, it gets workers from Workday and employees from SAP, compares by the email address of the workers and employees, and generates a CSV file which shows workers in Workday, employees in SAP. The report is then emailed to a configured group of email addresses.
 
 # Considerations <a name="considerations"/>
 
@@ -104,7 +104,7 @@ Once you have imported you Anypoint Template into Anypoint Studio you need to fo
 
 
 ### Running on Mule ESB stand alone <a name="runonmuleesbstandalone"/>
-Complete all properties in one of the property files, for example in [mule.prod.properties] (../blob/master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`. 
+Complete all properties in one of the property files, for example in [mule.prod.properties] (../master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`. 
 
 
 ## Running on CloudHub <a name="runoncloudhub"/>
@@ -174,19 +174,22 @@ Functional aspect of the Template is implemented on this XML, directed by one fl
 The *mainFlow* organises the job in three different steps and finally invokes the *outboundFlow* that will deliver the report to the corresponding outbound endpoint.
 This flow has Exception Strategy that basically consists on invoking the *defaultChoiseExceptionStrategy* defined in *errorHandling.xml* file.
 
-
 ### Gather Data Flow
-Mainly consisting of two calls (Queries) to Workday and SAP and storing each response on the Invocation Variable named *workersFromWorkday* or *employeesFromSap* accordingly.
-
-### Aggregation Flow
-[Java Transformer](http://www.mulesoft.org/documentation/display/current/Java+Transformer+Reference) responsible for aggregating the results from the two SAP Org employees.
+[Java Transformer](http://www.mulesoft.org/documentation/display/current/Java+Transformer+Reference) responsible for aggregating the results from SAP (employees) and Workday (workers).
 Criteria and format applied:
-+ Transformer receives a Mule Message with the two Invocation variables *workersFromWorkday* and *employeesFromSap* to result in List of Maps with keys: **Name**, **Email**, **IDInWorkday**, **WorkerNameInWorkday**, **IDInSalesforce** and 
+
++ Transformer calls two subflows where data are loaded from both Workday and SAP and aggregated to the List of Maps with keys: **Name**, **Email**, **IDInWorkday**, **WorkerNameInWorkday**, **IDInSalesforce** and 
 **UserNameInSalesforce**.
-+ Workers and Users will be matched by mail, that is to say, a record in Workday and SAP organisations with same mail is considered the same worker (user).
++ Workers and Employees will be matched by email, that is to say, a record in Workday and SAP organisations with same email is considered the same worker (employee).
+
+### sapRetrievalMapperFlow
+Employees are loaded by [SAP connector](http://www.mulesoft.org/documentation/display/current/SAP+Connector) to List of Maps with keys: **FirstName**, **LastName**, **Email**, **Id** and **Username**
+
+### workdayRetrievalMapperFlow
+Workers are loaded by [Workday connector](http://www.mulesoft.org/documentation/display/current/Workday+Connector) to List of Maps with keys: **Name**, **Email**, **Id** and **Username**
 
 ### Format Output Flow
-+ [Java Transformer](http://www.mulesoft.org/documentation/display/current/Java+Transformer+Reference) responsible for sorting the list of users in the following order:
+[Java Transformer](http://www.mulesoft.org/documentation/display/current/Java+Transformer+Reference) responsible for sorting the list of users in the following order:
 
 1. Workers only in Workday
 2. Employees only in SAP
@@ -218,7 +221,8 @@ This Template has an [HTTP Inbound Endpoint](http://www.mulesoft.org/documentati
 
 
 ## errorHandling.xml<a name="errorhandlingxml"/>
-Contains a [Catch Exception Strategy](http://www.mulesoft.org/documentation/display/current/Catch+Exception+Strategy) that is only Logging the exception thrown (If so). As you imagine, this is the right place to handle how your integration will react depending on the different exceptions.
+This is the right place to handle how your integration will react depending on the different exceptions. 
+This file holds a [Choice Exception Strategy](http://www.mulesoft.org/documentation/display/current/Choice+Exception+Strategy) that is referenced by the main flow in the business logic.
 
 
 

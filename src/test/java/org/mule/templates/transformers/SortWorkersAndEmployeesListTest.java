@@ -24,14 +24,14 @@ import org.mule.api.transformer.TransformerException;
 
 @SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
-public class SortUsersListTest {
+public class SortWorkersAndEmployeesListTest {
 	@Mock
 	private MuleContext muleContext;
 
 	@Test
 	public void testSort() throws TransformerException {
 
-		MuleMessage message = new DefaultMuleMessage(UsersMergeTest.createExpectedList(), muleContext);
+		MuleMessage message = new DefaultMuleMessage(WorkersAndEmployeesMergeTest.createExpectedList(), muleContext);
 
 		SortWorkersAndEmployeesList transformer = new SortWorkersAndEmployeesList();
 		List<Map<String, String>> sortedList = (List<Map<String, String>>) transformer.transform(message, "UTF-8");

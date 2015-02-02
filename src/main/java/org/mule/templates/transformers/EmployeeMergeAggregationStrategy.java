@@ -33,8 +33,10 @@ public class EmployeeMergeAggregationStrategy implements AggregationStrategy {
 			throw new IllegalArgumentException("There have to be exactly 2 sources (A and B).");
 		}
 		
-		MuleEvent muleEvent = muleEventsWithoutException.get(0);
-		MuleMessage muleMessage = muleEvent.getMessage();
+		// mule event that will be rewritten
+		MuleEvent originalEvent = context.getOriginalEvent();
+		// message which payload will be rewritten
+		MuleMessage message = originalEvent.getMessage();
 		
 		List<Map<String, String>> listA = getEmployeeList(muleEventsWithoutException, 0);
 		List<Map<String, String>> listB = getEmployeeList(muleEventsWithoutException, 1);
@@ -42,9 +44,9 @@ public class EmployeeMergeAggregationStrategy implements AggregationStrategy {
 		WorkersAndEmployeesMerge employeeMerge = new WorkersAndEmployeesMerge();
 		List<Map<String, String>> mergedAccountList = employeeMerge.mergeList(listA, listB);
 		
-		muleMessage.setPayload(mergedAccountList);
+		message.setPayload(mergedAccountList);
 		
-		return new DefaultMuleEvent(muleMessage, muleEvent);
+		return new DefaultMuleEvent(message, originalEvent);
 	}
 
 	private List<Map<String, String>> getEmployeeList(List<MuleEvent> events, int index) {
