@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.mule.templates</groupId>
 		<artifactId>templates-tooling-parent-pom</artifactId>
-		<version>1.0.12</version>
+		<version>1.0.15</version>
 	</parent>
 
 	<artifactId>template-wday2sap-worker-aggregation</artifactId>
@@ -18,7 +18,6 @@
 		<sap.jco.version>3.0.10</sap.jco.version>
 		<sap.idoc.version>3.0.10</sap.idoc.version>
 		<sap.build.type>mac64</sap.build.type>
-		<wday.version>4.0.1</wday.version>
 	</properties>
 
 	<build>
@@ -103,11 +102,6 @@
             <version>${sap.version}</version>
         </dependency>
     <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-module-workday</artifactId>
-            <version>${wday.version}</version>
-        </dependency>
-    <dependency>
             <groupId>org.mule.transports</groupId>
             <artifactId>mule-transport-email</artifactId>
             <version>${mule.version}</version>
@@ -142,7 +136,7 @@
     <dependency>
             <groupId>org.mule.modules</groupId>
             <artifactId>mule-module-workday-humanresources</artifactId>
-            <version>4.1.1</version>
+            <version>${wday.hr.version}</version>
         </dependency>
     </dependencies>
 
