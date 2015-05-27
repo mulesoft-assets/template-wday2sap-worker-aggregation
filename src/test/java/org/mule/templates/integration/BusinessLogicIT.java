@@ -36,6 +36,7 @@ public class BusinessLogicIT extends AbstractTemplateTestCase {
 	}
 	
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testGatherDataFlow() throws Exception {
 		SubflowInterceptingChainLifecycleWrapper flow = getSubFlow("gatherDataFlow");
 		flow.setMuleContext(muleContext);

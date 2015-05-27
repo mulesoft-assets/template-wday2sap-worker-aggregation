@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <configuration>
 	<placeholders>
-		<placeholder id="template_name">Workday to SAP Worker Aggregation</placeholder>
+		<placeholder id="template_name">Workday and SAP Worker Aggregation</placeholder>
 	</placeholders>
 	<sections>
 		<section id="use_case">

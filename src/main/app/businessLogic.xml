@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:wd-absence="http://www.mulesoft.org/schema/mule/wd-absence" xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:wd-hr="http://www.mulesoft.org/schema/mule/wd-hr" xmlns:sap="http://www.mulesoft.org/schema/mule/sap" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+<mule xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" 
+  	  xmlns:wd-hr="http://www.mulesoft.org/schema/mule/wd-hr" 
+  	  xmlns:sap="http://www.mulesoft.org/schema/mule/sap"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-      xmlns:spring="http://www.springframework.org/schema/beans"
-      version="EE-3.5.2"
+      version="EE-3.6.2"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
-http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd-hr/current/mule-wd-hr.xsd
 http://www.mulesoft.org/schema/mule/sap http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd
 http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schema/mule/ee/data-mapper/current/mule-data-mapper.xsd">
@@ -17,24 +16,25 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
     <data-mapper:config name="workdayWorkers_to_maps" transformationGraphPath="workdayWorkers_to_maps.grf" doc:name="workdayWorkers_to_maps"/>
     <data-mapper:config name="XML_To_Map" transformationGraphPath="xml_to_map.grf" doc:name="XML_To_Map"/>
     
-    <flow name="mainFlow" doc:name="mainFlow" doc:description="This flow is the entry point to the Template business logic.
+    <flow name="mainFlow"  doc:description="This flow is the entry point to the Template business logic.
 
 This flow should control the direction of the application, and it should be called by the different endpoints that your Template exposes to trigger it.">
-        <flow-ref name="gatherDataFlow" doc:name="call gatherDataFlow"/>
-        <flow-ref name="formatOutputFlow" doc:name="call formatOutputFlow"/>
-        <flow-ref name="outboundFlow" doc:name="call outboundFlow"/>
+
+        <flow-ref name="gatherDataFlow" doc:name="Call gatherDataFlow"/>
+        <flow-ref name="formatOutputFlow" doc:name="Call formatOutputFlow"/>
+        <flow-ref name="outboundFlow" doc:name="Call outboundFlow"/>
         <exception-strategy ref="defaultChoiceExceptionStrategy" doc:name="Reference Exception Strategy"/>
     </flow>
-    <sub-flow name="gatherDataFlow" doc:name="gatherDataFlow">
+    <sub-flow name="gatherDataFlow" >
         <scatter-gather doc:name="Scatter-Gather">
             <custom-aggregation-strategy class="org.mule.templates.transformers.EmployeeMergeAggregationStrategy"/>
-            <flow-ref name="workdayRetrievalMapperFlow" doc:name="call workdayMapperFlow"/>
-            <flow-ref name="sapRetrievalMapperFlow" doc:name="call sapMapperFlow"/>
+            <flow-ref name="workdayRetrievalMapperFlow" doc:name="Call workdayMapperFlow"/>
+            <flow-ref name="sapRetrievalMapperFlow" doc:name="Call sapMapperFlow"/>
         </scatter-gather>
     </sub-flow>
-    <sub-flow name="sapRetrievalMapperFlow" doc:name="sapRetrievalMapperFlow">
+    <sub-flow name="sapRetrievalMapperFlow" >
         <processor-chain doc:name="Processor Chain">
-            <sap:outbound-endpoint exchange-pattern="request-response" connector-ref="SAP" type="function" functionName="BAPI_EMPLOYEE_GETDATA" xmlVersion="2" outputXml="true" evaluateFunctionResponse="true" responseTimeout="10000" doc:name="query SAP employees">
+            <sap:outbound-endpoint exchange-pattern="request-response" connector-ref="SAP" type="function" functionName="BAPI_EMPLOYEE_GETDATA" xmlVersion="2" outputXml="true" evaluateFunctionResponse="true" responseTimeout="10000" doc:name="Query SAP employees">
                 <sap:definition><![CDATA[<BAPI_EMPLOYEE_GETDATA>
 	<import>
 		<LASTNAME_M>*ADAMS*</LASTNAME_M>
@@ -42,20 +42,21 @@ This flow should control the direction of the application, and it should be call
 </BAPI_EMPLOYEE_GETDATA>
 ]]></sap:definition>
 
+
             </sap:outbound-endpoint>
-            <data-mapper:transform config-ref="XML_To_Map" doc:name="transform SAP's employees to map of values"/>
+            <data-mapper:transform config-ref="XML_To_Map" doc:name="Transform SAP's employees to map of values"/>
         </processor-chain>
     </sub-flow>
-    <sub-flow name="workdayRetrievalMapperFlow" doc:name="workdayRetrievalMapperFlow">
+    <sub-flow name="workdayRetrievalMapperFlow" >
         <processor-chain doc:name="Processor Chain">
-            <wd-hr:get-workers config-ref="WorkdayHumanResource" workersRequest-ref="#[new com.workday.hr.GetWorkersRequestType()]" doc:name="get Workers from Workday"/>
-            <data-mapper:transform config-ref="workdayWorkers_to_maps" doc:name="transform Workday's workers to map of values"/>
+            <wd-hr:get-workers config-ref="WorkdayHumanResource" workersRequest-ref="#[new com.workday.hr.GetWorkersRequestType()]" doc:name="Get Workers from Workday"/>
+            <data-mapper:transform config-ref="workdayWorkers_to_maps" doc:name="Transform Workday's workers to map of values"/>
         </processor-chain>
     </sub-flow>
     
-    <sub-flow name="formatOutputFlow" doc:name="formatOutputFlow">
+    <sub-flow name="formatOutputFlow" >
         <custom-transformer class="org.mule.templates.transformers.SortWorkersAndEmployeesList" doc:name="Custom component to sort employees list"/>
-        <data-mapper:transform config-ref="csvreport_grf" doc:name="transform Collection of Maps to CSV Format"/>
+        <data-mapper:transform config-ref="csvreport_grf" doc:name="Transform Collection of Maps to CSV Format"/>
         <object-to-string-transformer doc:name="CSV Output Object to String"/>
     </sub-flow>
 </mule>

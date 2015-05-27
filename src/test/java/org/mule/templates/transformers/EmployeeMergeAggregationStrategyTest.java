@@ -7,7 +7,6 @@
 package org.mule.templates.transformers;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +20,6 @@ import org.mule.api.MuleContext;
 import org.mule.api.MuleEvent;
 import org.mule.api.routing.AggregationContext;
 import org.mule.templates.integration.AbstractTemplateTestCase;
-
-import com.google.common.collect.Lists;
 
 @SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)

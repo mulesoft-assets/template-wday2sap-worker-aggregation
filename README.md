@@ -1,5 +1,5 @@
 
-# Anypoint Template: Workday to SAP Worker Aggregation
+# Anypoint Template: Workday and SAP Worker Aggregation
 
 + [License Agreement](#licenseagreement)
 + [Use Case](#usecase)
@@ -65,8 +65,12 @@ There are no particular considerations for this Anypoint Template regarding Sap 
 The Workday connector currently does not support autopaging functionality out of the box so number of processed objects are limited to the connector's single page size.
 
 
+
+
+
+
 # Run it! <a name="runit"/>
-Simple steps to get Workday to SAP Worker Aggregation running.
+Simple steps to get Workday and SAP Worker Aggregation running.
 
 
 ## Running on premise <a name="runonopremise"/>
