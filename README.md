@@ -28,7 +28,7 @@ Please review the terms of the license before downloading and using this templat
 # Use Case <a name="usecase"/>
 As a SAP admin I want to aggregate workers from Workday and employees from SAP and compare them to see which workers can only be found in one of the two and which workers are in both instances. 
 
-For practical purposes this Template will generate the result in the format of a CSV Report sent by mail.
+For practical purposes this Template will generate the result in the format of a CSV Report sent by email.
 
 This Template should serve as a foundation for extracting data from two systems, aggregating data, comparing values of fields for the objects, and generating a report on the differences. 
 
@@ -48,9 +48,6 @@ These dependencies are private for Mulesoft and will cause you application not t
 
 
 ## SAP Considerations <a name="sapconsiderations"/>
-
-There may be a few things that you need to know regarding SAP, in order for this template to work.
-
 
 ### As destination of data
 
@@ -74,7 +71,7 @@ Simple steps to get Workday and SAP Worker Aggregation running.
 
 
 ## Running on premise <a name="runonopremise"/>
-Complete all properties in one of the property files, for example in [mule.prod.properties] (../blob/master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`.
+Complete all properties in one of the property files, for example in [mule.prod.properties](../blob/master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`.
 
 After this, to trigger the use case you just need to hit the local http endpoint with the port you configured in your file. If this is, for instance, `9090` then you should hit: `http://localhost:9090/generatereport` and this will create a CSV report and send it to the mails set.
 
@@ -122,12 +119,13 @@ Mule Studio provides you with really easy way to deploy your Template directly t
 ## Properties to be configured (With examples) <a name="propertiestobeconfigured"/>
 In order to use this Mule Anypoint Template you need to configure properties (Credentials, configurations, etc.) either in properties file or in CloudHub as Environment Variables. Detail list with examples:
 ### Application configuration
-+ http.port `9090` 
++ http.port `9090`
++ wday.page.size `999`
 
 #### Workday Connector configuration
 + wday.user `bob.dylan@orga`
 + wday.password `DylanPassword123`
-+ wday.endpoint `http://localhost:8080/ccx/service/company_pt1/Human_Resources/v21.1`
++ wday.endpoint `http://localhost:8080/ccx/service/company_pt1/Human_Resources/v23.1`
 
 ### SAP Connector configuration
 + sap.jco.ashost `your.sap.address.com`
@@ -143,7 +141,7 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 + smtp.user `exampleuser@gmail.com`
 + smtp.password `ExamplePassword456`
 
-#### Mail details
+#### Email details
 + mail.from `exampleuser@gmail.com`
 + mail.to `woody.guthrie@gmail.com`
 + mail.subject `Employee Report`
@@ -151,7 +149,7 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 + attachment.name `WorkersEmployeesReport.csv`
 
 # API Calls <a name="apicalls"/>
-&#160;
+There are no special considerations regarding API calls.
 
 
 # Customize It!<a name="customizeit"/>
@@ -182,8 +180,8 @@ This flow has Exception Strategy that basically consists on invoking the *defaul
 [Java Transformer](http://www.mulesoft.org/documentation/display/current/Java+Transformer+Reference) responsible for aggregating the results from SAP (employees) and Workday (workers).
 Criteria and format applied:
 
-+ Transformer calls two subflows where data are loaded from both Workday and SAP and aggregated to the List of Maps with keys: **Name**, **Email**, **IDInWorkday**, **WorkerNameInWorkday**, **IDInSalesforce** and 
-**UserNameInSalesforce**.
++ Transformer calls two subflows where data are loaded from both Workday and SAP and aggregated to the List of Maps with keys: **Name**, **Email**, **IDInWorkday**, **WorkerNameInWorkday**, **IDInSap** and 
+**UserNameInSap**.
 + Workers and Employees will be matched by email, that is to say, a record in Workday and SAP organisations with same email is considered the same worker (employee).
 
 ### sapRetrievalMapperFlow
@@ -202,23 +200,25 @@ Workers are loaded by [Workday connector](http://www.mulesoft.org/documentation/
 All records ordered alphabetically by mail within each category.
 If you want to change this order then the *compare* method should be modified.
 
-+ CSV Report [DataMapper](http://www.mulesoft.org/documentation/display/current/Datamapper+User+Guide+and+Reference) transforming the List of Maps in CSV with headers **Name**, **Email**, **IDInWorkday**, **WorkerNameInWorkday**, **IDInSalesforce** and **UserNameInSalesforce**.
++ CSV Report is created by [DataWeave](http://mulesoft.github.io/data-weave/) transforming the List of Maps in CSV with headers **Name**, **Email**, **IDInWorkday**, **WorkerNameInWorkday**, **IDInSap** and **UserNameInSap**.
 + An [Object to string transformer](http://www.mulesoft.org/documentation/display/current/Transformers) is used to set the payload as an String.
 
 
 
 ## endpoints.xml<a name="endpointsxml"/>
 This is the file where you will found the inbound and outbound sides of your integration app.
-This Template has an [HTTP Inbound Endpoint](http://www.mulesoft.org/documentation/display/current/HTTP+Endpoint+Reference) as the way to trigger the use case and an [SMTP Transport](http://www.mulesoft.org/documentation/display/current/SMTP+Transport+Reference) as the outbound way to send the report.
+This Template has an [HTTP Listener Connector](http://www.mulesoft.org/documentation/display/current/HTTP+Listener+Connector) as the way to trigger the use case and an [SMTP Transport](http://www.mulesoft.org/documentation/display/current/SMTP+Transport+Reference) as the outbound way to send the report.
 
 ### Trigger Flow
-**HTTP Inbound Endpoint** - Start Report Generation
+**HTTP Listener Connector** - Start Report Generation
+
 + `${http.port}` is set as a property to be defined either on a property file or in CloudHub environment variables.
 + The path configured by default is `generatereport` and you are free to change for the one you prefer.
 + The host name for all endpoints in your CloudHub configuration should be defined as `localhost`. CloudHub will then route requests from your application domain URL to the endpoint.
 
 ### Outbound Flow
 **SMTP Outbound Endpoint** - Send Mail
+
 + Both SMTP Server configuration and the actual mail to be sent are defined in this endpoint.
 + This flow is going to be invoked from the flow that does all the functional work: *mainFlow*, the same that is invoked from the Inbound Flow upon triggering of the HTTP Endpoint.
 

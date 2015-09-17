@@ -35,6 +35,10 @@ public class WorkersAndEmployeesMerge {
 
         // Put all users from Workday in the merged mergedUsersList
         for (Map<String, String> userFromWorkday : workersFromWorkday) {
+        	if (userFromWorkday.get("Email") == null || "".equals(userFromWorkday.get("Email"))) {
+        		continue;
+        	}
+        	
             Map<String, String> mergedUser = createMergedUser(userFromWorkday);
             mergedUser.put("IDInWorkday", userFromWorkday.get("Id"));
             mergedUser.put("WorkerNameInWorkday", userFromWorkday.get("Username"));
@@ -93,7 +97,7 @@ public class WorkersAndEmployeesMerge {
 		Iterator<Map<String, String>> it = employeesFromSap.iterator();
 		while (it.hasNext()) {
 			Map<String, String> next = it.next();
-			if (next.get("Email") == null) {
+			if (next.get("Email") == null || "".equals(next.get("Email"))) {
 				it.remove();
 			}
 		}

@@ -12,9 +12,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mule.MessageExchangePattern;
 import org.mule.api.MuleEvent;
-import org.mule.processor.chain.SubflowInterceptingChainLifecycleWrapper;
 import org.mule.tck.junit4.rule.DynamicPort;
 
 /**
@@ -38,11 +36,7 @@ public class BusinessLogicIT extends AbstractTemplateTestCase {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testGatherDataFlow() throws Exception {
-		SubflowInterceptingChainLifecycleWrapper flow = getSubFlow("gatherDataFlow");
-		flow.setMuleContext(muleContext);
-		flow.initialise();
-		flow.start();
-		MuleEvent event = flow.process(getTestEvent("", MessageExchangePattern.REQUEST_RESPONSE));
+		MuleEvent event = runFlow("gatherDataFlow");
 		List<Map<String, String>> mergedUserList = (List<Map<String, String>>)event.getMessage().getPayload();
 		
 		Assert.assertTrue("There should be users from source A or source B.", !mergedUserList.isEmpty());
