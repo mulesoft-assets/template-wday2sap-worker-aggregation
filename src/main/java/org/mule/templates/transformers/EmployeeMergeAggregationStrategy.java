@@ -42,13 +42,14 @@ public class EmployeeMergeAggregationStrategy implements AggregationStrategy {
 		List<Map<String, String>> listB = getEmployeeList(muleEventsWithoutException, 1);
 		
 		WorkersAndEmployeesMerge employeeMerge = new WorkersAndEmployeesMerge();
-		List<Map<String, String>> mergedAccountList = employeeMerge.mergeList(listA, listB);
+		List<Map<String, String>> mergedWorkerList = employeeMerge.mergeList(listA, listB);
 		
-		message.setPayload(mergedAccountList);
+		message.setPayload(mergedWorkerList);
 		
 		return new DefaultMuleEvent(message, originalEvent);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private List<Map<String, String>> getEmployeeList(List<MuleEvent> events, int index) {
 		List<Map<String, String>> list = new ArrayList<Map<String,String>>();
 		if(events.get(index).getMessage().getPayload() instanceof ConsumerIterator){

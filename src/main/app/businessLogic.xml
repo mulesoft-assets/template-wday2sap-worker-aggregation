@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" 
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:spring="http://www.springframework.org/schema/beans" 
   	  xmlns:wd-hr="http://www.mulesoft.org/schema/mule/wd-hr" 
   	  xmlns:sap="http://www.mulesoft.org/schema/mule/sap"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-      version="EE-3.6.2"
+      version="EE-3.7.1"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/wd-hr http://www.mulesoft.org/schema/mule/wd-hr/current/mule-wd-hr.xsd
 http://www.mulesoft.org/schema/mule/sap http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd
-http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schema/mule/ee/data-mapper/current/mule-data-mapper.xsd">
-
-    <data-mapper:config name="csvreport_grf" transformationGraphPath="csvreport.grf" doc:name="DataMapper"/>
-    <data-mapper:config name="workdayWorkers_to_maps" transformationGraphPath="workdayWorkers_to_maps.grf" doc:name="workdayWorkers_to_maps"/>
-    <data-mapper:config name="XML_To_Map" transformationGraphPath="xml_to_map.grf" doc:name="XML_To_Map"/>
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
     
     <flow name="mainFlow"  doc:description="This flow is the entry point to the Template business logic.
 
@@ -25,13 +23,13 @@ This flow should control the direction of the application, and it should be call
         <flow-ref name="outboundFlow" doc:name="Call outboundFlow"/>
         <exception-strategy ref="defaultChoiceExceptionStrategy" doc:name="Reference Exception Strategy"/>
     </flow>
-    <sub-flow name="gatherDataFlow" >
+    <flow name="gatherDataFlow" processingStrategy="synchronous">
         <scatter-gather doc:name="Scatter-Gather">
             <custom-aggregation-strategy class="org.mule.templates.transformers.EmployeeMergeAggregationStrategy"/>
             <flow-ref name="workdayRetrievalMapperFlow" doc:name="Call workdayMapperFlow"/>
             <flow-ref name="sapRetrievalMapperFlow" doc:name="Call sapMapperFlow"/>
         </scatter-gather>
-    </sub-flow>
+    </flow>
     <sub-flow name="sapRetrievalMapperFlow" >
         <processor-chain doc:name="Processor Chain">
             <sap:outbound-endpoint exchange-pattern="request-response" connector-ref="SAP" type="function" functionName="BAPI_EMPLOYEE_GETDATA" xmlVersion="2" outputXml="true" evaluateFunctionResponse="true" responseTimeout="10000" doc:name="Query SAP employees">
@@ -44,19 +42,72 @@ This flow should control the direction of the application, and it should be call
 
 
             </sap:outbound-endpoint>
-            <data-mapper:transform config-ref="XML_To_Map" doc:name="Transform SAP's employees to map of values"/>
+            <dw:transform-message doc:name="SAP Employees to Map">
+                <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload."BAPI_EMPLOYEE_GETDATA".tables."PERSONAL_DATA".*row map
+{
+	Id: $.PERNO,
+	FirstName: $.FSTNAME_M,
+	LastName: $.LASTNAME_M,
+	Username: using (employeeId = $.PERNO) (payload."BAPI_EMPLOYEE_GETDATA".tables."COMMUNICATION".*row filter ($.PERNO == employeeId)
+)[0].USERID,
+  Email: using (employeeId = $.PERNO) (payload."BAPI_EMPLOYEE_GETDATA".tables."COMMUNICATION".*row filter ($.PERNO == employeeId)
+)[0].USRID_LONG
+}]]></dw:set-payload>
+            </dw:transform-message>
+
         </processor-chain>
     </sub-flow>
     <sub-flow name="workdayRetrievalMapperFlow" >
         <processor-chain doc:name="Processor Chain">
-            <wd-hr:get-workers config-ref="WorkdayHumanResource" workersRequest-ref="#[new com.workday.hr.GetWorkersRequestType()]" doc:name="Get Workers from Workday"/>
-            <data-mapper:transform config-ref="workdayWorkers_to_maps" doc:name="Transform Workday's workers to map of values"/>
+            <dw:transform-message doc:name="Create GetWorkers Request">
+                <dw:set-payload><![CDATA[%dw 1.0
+%output application/java 
+--- 
+{ 
+	requestCriteria: { 
+		excludeInactiveWorkers: true
+	},
+	responseFilter: {
+		count: p('wday.page.size')
+	}
+} as :object {class: "com.workday.hr.GetWorkersRequestType"}]]></dw:set-payload>
+            </dw:transform-message>
+            <wd-hr:get-workers config-ref="WorkdayHumanResource"  doc:name="Get Workers from Workday"/>
+            <dw:transform-message doc:name="Workday Workers to Maps">
+                <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload.responseData.worker map
+{
+	Id: $.workerReference.ID[1].value,
+	Name: $.workerData.personalData.nameData.legalNameData.nameDetailData.formattedName,
+	Email: $.workerData.personalData.contactData.emailAddressData[-1].emailAddress,
+	Username: $.workerData.userAccountData.userName default null
+}]]></dw:set-payload>
+            </dw:transform-message>
+
         </processor-chain>
     </sub-flow>
     
     <sub-flow name="formatOutputFlow" >
         <custom-transformer class="org.mule.templates.transformers.SortWorkersAndEmployeesList" doc:name="Custom component to sort employees list"/>
-        <data-mapper:transform config-ref="csvreport_grf" doc:name="Transform Collection of Maps to CSV Format"/>
+        <dw:transform-message doc:name="transform Collection of Maps to CSV Format">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/csv header=true, quoteValues=true
+---
+payload map
+{
+	Name: $.Name,
+	Email: $.Email,
+	"Id in Workday": $.IDInWorkday,
+	"Id in SAP": $.IDInSap,
+	"Username in Workday": $.WorkerNameInWorkday,
+	"Username in SAP": $.UserNameInSap
+}]]></dw:set-payload>
+        </dw:transform-message>
         <object-to-string-transformer doc:name="CSV Output Object to String"/>
     </sub-flow>
 </mule>
