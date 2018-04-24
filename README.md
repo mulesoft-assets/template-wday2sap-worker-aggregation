@@ -41,7 +41,6 @@ To make this Anypoint Template run, there are certain preconditions that must be
 Before continue with the use of this Anypoint Template, you may want to check out this [Documentation Page](http://www.mulesoft.org/documentation/display/current/SAP+Connector#SAPConnector-EnablingYourStudioProjectforSAP), that will teach you how to work 
 with SAP and Anypoint Studio.
 
-
 ## Disclaimer
 This Anypoint template uses a few private Maven dependencies from Mulesoft in order to work. If you intend to run this template with Maven support, you need to add three extra dependencies for SAP to the pom.xml.
 
@@ -137,7 +136,7 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 + sap.jco.client `800`
 + sap.jco.lang `EN`
 
-#### SMPT Services configuration
+#### SMTP Services configuration
 + smtp.host `smtp.gmail.com`
 + smtp.port `587`
 + smtp.user `exampleuser@gmail.com`
