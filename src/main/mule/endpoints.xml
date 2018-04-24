@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+    <flow name="triggerFlow" doc:id="c56478bc-3563-4251-8c30-35d2da6a3e5b">
+        <http:listener doc:name="/generatereport"
+                       doc:id="f56ef802-706b-494f-988f-531d0f06298c" config-ref="HTTP_Listener_config"
+                       path="/generatereport" allowedMethods="GET"/>
+        <flow-ref doc:name="mainFlow" doc:id="12238107-efe2-44fb-89f6-e1726655a746"
+                  name="mainFlow"/>
+        <logger level="INFO" doc:name="Log: Aggregation has been finished"
+                doc:id="1fe8e50c-088b-4b7d-802c-1e99076947cf" message="Aggregation has been finished"/>
+    </flow>
+
+</mule>
+
+        
