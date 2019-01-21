@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:sap="http://www.mulesoft.org/schema/mule/sap" xmlns:workday="http://www.mulesoft.org/schema/mule/workday"
-      xmlns:email="http://www.mulesoft.org/schema/mule/email"
-      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-      xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule  xmlns:os="http://www.mulesoft.org/schema/mule/os"
+      xmlns:sap="http://www.mulesoft.org/schema/mule/sap"
+      xmlns:workday="http://www.mulesoft.org/schema/mule/workday"
+      xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
 http://www.mulesoft.org/schema/mule/workday http://www.mulesoft.org/schema/mule/workday/current/mule-workday.xsd
 http://www.mulesoft.org/schema/mule/sap http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd">
+
+	
 	<flow name="businesslogicFlow">
 		<scatter-gather doc:name="Scatter-Gather">
             <route>
-                <ee:transform doc:name="Prepare Get Workers request" doc:id="5ddb1536-1e04-4131-b020-a946b4d430b1" >
+				<ee:transform doc:name="Prepare Get Workers request" doc:id="5ddb1536-1e04-4131-b020-a946b4d430b1" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
-output application/xml
 ns ns0 urn:com.workday/bsvc
+
+output application/xml
 ---
 {
 	ns0#Get_Workers_Request: {
@@ -30,24 +33,24 @@ ns ns0 urn:com.workday/bsvc
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-				<workday:invoke doc:name="Get workers from Workday" doc:id="b03873c0-535e-43f4-8db6-4975f5867403" config-ref="Workday_Config" service="Human_Resources" operation="Get_Workers"/>
+				<workday:human-resources operation="Get_Workers" doc:name="Get Workers from Workday Human Resource" doc:id="7a20e6d7-8a0f-4025-8c0f-a75237a96626" config-ref="Workday_Config"/>
 				<ee:transform doc:name="Transform Workday response" doc:id="f2114fbc-b82d-48ed-be3b-980252e6f446" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ns ns0 urn:com.workday/bsvc
 ---
-(payload.body.ns0#Get_Workers_Response.ns0#Response_Data.*ns0#Worker map ((worker , indexOfWorker) -> {
+payload.ns0#Get_Workers_Response.ns0#Response_Data.*ns0#Worker map ((worker , indexOfWorker) -> {
 	Id: worker.ns0#Worker_Reference.ns0#ID,
 	Name: worker.ns0#Worker_Data.ns0#Personal_Data.ns0#Name_Data.ns0#Legal_Name_Data.ns0#Name_Detail_Data.@ns0#Formatted_Name,
 	Email: worker.ns0#Worker_Data.ns0#Personal_Data.ns0#Contact_Data.ns0#Email_Address_Data.ns0#Email_Address,
 	Username: worker.ns0#Worker_Data.ns0#User_ID
-}))]]></ee:set-payload>
+})]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
             </route>
 			<route >
-				<ee:transform doc:name="set SAP XML request" doc:id="ebdd4aab-f75f-445b-bdea-7947af607ac0" >
+				<ee:transform doc:name="Set SAP XML request" doc:id="ebdd4aab-f75f-445b-bdea-7947af607ac0" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
 output application/xml
@@ -61,8 +64,8 @@ output application/xml
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-				<sap:execute-synchronous-remote-function-call doc:name="query employees from SAP" doc:id="e3e4b965-3169-4a9f-8a00-59ff1937bcfc" config-ref="SAP_Outbound" key="BAPI_EMPLOYEE_GETDATA"/>
-				<ee:transform doc:name="convert SAP response to workers" doc:id="cae35bd2-d5c3-4e2e-8424-aaaf22f1f30e" >
+				<sap:execute-synchronous-remote-function-call doc:name="Query employees from SAP" doc:id="e3e4b965-3169-4a9f-8a00-59ff1937bcfc" config-ref="SAP_Outbound" key="BAPI_EMPLOYEE_GETDATA"/>
+				<ee:transform doc:name="Convert SAP response to workers" doc:id="cae35bd2-d5c3-4e2e-8424-aaaf22f1f30e" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -72,14 +75,13 @@ payload."BAPI_EMPLOYEE_GETDATA".tables."PERSONAL_DATA".*row map
 	Id: $.PERNO,
 	(Name: if($.FSTNAME_M != null and $.LASTNAME_M != null) $.FSTNAME_M ++ " " ++ $.LASTNAME_M else if ($.FSTNAME_M == null) $.LASTNAME_M else $.FSTNAME_M),
 	Username: using (employeeId = $.PERNO) (payload."BAPI_EMPLOYEE_GETDATA".tables."COMMUNICATION".*row filter ($.PERNO == employeeId))[0].USERID,
-  	Email: using (employeeId = $.PERNO) (payload."BAPI_EMPLOYEE_GETDATA".tables."COMMUNICATION".*row filter ($.PERNO == employeeId))[0].USRID_LONG  	
+  	Email: using (employeeId = $.PERNO) lower((payload."BAPI_EMPLOYEE_GETDATA".tables."COMMUNICATION".*row filter ($.PERNO == employeeId))[0].USRID_LONG)  	
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-			
 </route>
         </scatter-gather>
-<ee:transform doc:name="Aggregate results and transform to CSV" doc:id="fd27ba32-c22a-436c-8550-75136a9c04cf">
+        <ee:transform doc:name="Aggregate results and transform to CSV" doc:id="fd27ba32-c22a-436c-8550-75136a9c04cf">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
 output application/csv separator=","
@@ -135,10 +137,9 @@ sortBySourceExistence(mergedItems) map (item) -> {
                 <email:content><![CDATA[${mail.body}]]></email:content>
             </email:body>
             <email:attachments><![CDATA[#[{'${attachment.name}' : payload}]]]></email:attachments>
-
         </email:send>
     </flow>
-    <flow name="mainFlow">
+	<flow name="mainFlow">
         <flow-ref doc:name="Call businesslogicFlow" name="businesslogicFlow"/>
         <error-handler>
             <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" type="ANY">
