@@ -5,10 +5,10 @@
     xsi:schemaLocation=" http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/workday http://www.mulesoft.org/schema/mule/workday/current/mule-workday.xsd http://www.mulesoft.org/schema/mule/sap http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd">
 
     <global-property doc:name="Global Property" name="mule.env" value="dev" />
-    
+
     <configuration-properties file="mule.${mule.env}.properties" doc:id="c126eaa9-e433-4ca2-9fd8-b28524abb7dc" doc:name="Configuration properties" />
     <configuration-properties file="common.properties" doc:id="9b4aa221-95a4-4cbb-8317-60ef1c4d8aab" doc:name="Configuration properties" />
-    
+
     <http:listener-config name="HTTP_Listener_config" doc:id="910654bf-9fd9-4073-bad4-cf951b7f0022" doc:name="HTTP Listener config">
         <http:listener-connection host="0.0.0.0" port="${http.port}" />
     </http:listener-config>
@@ -19,7 +19,7 @@
 
     <workday:config-version-30-config name="Workday_Config" doc:name="Workday Config version 30" doc:id="428d052f-105e-465b-ad2c-953130b9bbbc">
         <workday:basic-authentication-api-v30-connection username="${wday.username}" password="${wday.password}" tenantName="${wday.tenant}"
-            hostName="${wday.host}" responseTimeout="25000" />
+            hostName="${wday.host}" responseTimeout="${wday.responseTimeout}" />
     </workday:config-version-30-config>
 
     <tls:context name="TLS_Context" doc:id="233e532c-8296-4ddd-ac67-e2b7984b3609" doc:name="TLS Context">
