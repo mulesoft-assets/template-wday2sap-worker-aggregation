@@ -44,7 +44,7 @@ output application/xml
 				<ee:transform doc:name="Transform Workday response" doc:id="f2114fbc-b82d-48ed-be3b-980252e6f446" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
+output application/java
 ns ns0 urn:com.workday/bsvc
 ---
 payload.ns0#Get_Workers_Response.ns0#Response_Data.*ns0#Worker map ((worker , indexOfWorker) -> {
@@ -75,7 +75,7 @@ output application/xml
 				<ee:transform doc:name="Convert SAP response to workers" doc:id="cae35bd2-d5c3-4e2e-8424-aaaf22f1f30e" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
+output application/java
 ---
 payload."BAPI_EMPLOYEE_GETDATA".tables."PERSONAL_DATA".*row map
 {
