@@ -10,6 +10,14 @@ http://www.mulesoft.org/schema/mule/sap http://www.mulesoft.org/schema/mule/sap/
 
 	
 	<flow name="businesslogicFlow">
+		<ee:transform doc:name="Set payload" doc:id="e5bbd480-9365-403f-8238-2ca6e424a99b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+[]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 		<scatter-gather doc:name="Scatter-Gather">
             <route>
 				<ee:transform doc:name="Prepare Get Workers request" doc:id="5ddb1536-1e04-4131-b020-a946b4d430b1" >
