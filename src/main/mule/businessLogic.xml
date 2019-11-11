@@ -9,7 +9,7 @@ http://www.mulesoft.org/schema/mule/workday http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/sap http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd">
 
 	
-	<flow name="businesslogicFlow">
+	<flow name="businessLogicFlow">
 		<ee:transform doc:name="Set payload" doc:id="e5bbd480-9365-403f-8238-2ca6e424a99b" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -147,7 +147,7 @@ sortBySourceExistence(mergedItems) map (item) -> {
         </email:send>
     </flow>
 	<flow name="mainFlow">
-        <flow-ref doc:name="Call businesslogicFlow" name="businesslogicFlow"/>
+        <flow-ref doc:name="Call businessLogicFlow" name="businessLogicFlow"/>
         <error-handler>
             <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" type="ANY">
                 <flow-ref doc:name="errorHandlingFlow" name="errorHandlingFlow"/>
